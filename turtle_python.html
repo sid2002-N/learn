@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐢 Python Turtle — Learn & Draw</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #141714;
+    --surface2: #1a1e1b;
+    --border: #2a2e2b;
+    --accent: #6fcf7a;
+    --accent2: #4ab856;
+    --accent-dim: rgba(111,207,122,0.12);
+    --text: #e8ede9;
+    --text-dim: #7a8c7d;
+    --text-dimmer: #4a5c4d;
+    --shell: #0a0c0a;
+    --red: #e06c75;
+    --yellow: #e5c07b;
+    --blue: #61afef;
+    --purple: #c678dd;
+    --orange: #d19a66;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(13,15,14,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex; gap: 0.25rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 9rem 2rem 5rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 560px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 0.65rem 1.4rem;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 500;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── PROGRESS TRACKER ─── */
+  .progress-bar-wrap {
+    max-width: 960px; margin: 0 auto 0;
+    padding: 0 2rem 2rem;
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    display: flex; justify-content: space-between;
+  }
+  .progress-track {
+    height: 3px; background: var(--border); border-radius: 2px;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    align-items: start;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: sticky;
+    top: 72px;
+    padding-right: 2rem;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar-section {
+    margin-bottom: 2rem;
+  }
+  .sidebar-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.1rem;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .sidebar-link:hover { color: var(--accent); background: var(--accent-dim); }
+  .sidebar-link.active { color: var(--accent); background: var(--accent-dim); }
+  .sidebar-link .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .sidebar-link.done .dot { background: var(--accent); }
+  .sidebar-link.active .dot { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+  /* ─── CONTENT AREA ─── */
+  .content {
+    padding-left: 3rem;
+    min-width: 0;
+  }
+
+  /* ─── LESSON CARD ─── */
+  .lesson {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .lesson.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .lesson-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .lesson-level {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .level-beginner { color: var(--accent); }
+  .level-intermediate { color: var(--yellow); }
+  .level-advanced { color: var(--orange); }
+
+  .lesson h2 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .lesson h2 em { font-style: italic; color: var(--accent); }
+  .lesson-desc { color: var(--text-dim); font-weight: 300; font-size: 1rem; }
+
+  .lesson h3 {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin: 2rem 0 0.75rem;
+    color: var(--text);
+  }
+  .lesson p { color: var(--text-dim); margin-bottom: 1rem; font-size: 0.95rem; }
+  .lesson ul, .lesson ol {
+    color: var(--text-dim);
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .lesson li { margin-bottom: 0.4rem; }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: var(--shell);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .code-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.1em;
+  }
+  .copy-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dimmer);
+    background: none; border: 1px solid var(--border);
+    padding: 0.2rem 0.6rem; border-radius: 3px;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  pre {
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .kw { color: var(--purple); }
+  .fn { color: var(--blue); }
+  .str { color: var(--accent); }
+  .num { color: var(--orange); }
+  .cm { color: var(--text-dimmer); font-style: italic; }
+  .cls { color: var(--yellow); }
+
+  /* ─── INTERACTIVE PLAYGROUND ─── */
+  .playground {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .playground-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .playground-title::before { content: '▶'; font-size: 0.6rem; }
+
+  .canvas-wrap {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1rem 0;
+    display: flex; justify-content: center;
+  }
+  canvas { display: block; }
+
+  .controls {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+    margin-top: 1rem;
+  }
+  .control-group {
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  input[type="range"] {
+    accent-color: var(--accent);
+    width: 80px;
+  }
+  input[type="color"] {
+    border: none; background: none;
+    width: 28px; height: 28px;
+    cursor: pointer; border-radius: 4px;
+    padding: 0;
+  }
+  select {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .run-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .run-btn:hover { background: var(--accent2); }
+
+  /* ─── QUIZ ─── */
+  .quiz {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+  .quiz-q { font-size: 0.95rem; margin-bottom: 1rem; color: var(--text); }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quiz-option {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 0.65rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); color: var(--text); }
+  .quiz-option.correct { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(224,108,117,0.1); color: var(--red); }
+  .quiz-feedback {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 5px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: var(--accent-dim); color: var(--accent); }
+  .quiz-feedback.bad { background: rgba(224,108,117,0.1); color: var(--red); }
+
+  /* ─── NAV FOOTER ─── */
+  .lesson-nav {
+    display: flex; justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .lesson-nav-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .lesson-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lesson-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .lesson-nav-btn:disabled:hover { border-color: var(--border); color: var(--text-dim); }
+
+  /* ─── CHEATSHEET ─── */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  .cheat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .cheat-method {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--blue);
+    margin-bottom: 0.3rem;
+  }
+  .cheat-desc {
+    font-size: 0.8rem;
+    color: var(--text-dimmer);
+    font-style: italic;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding-left: 0; }
+    .nav-links { display: none; }
+  }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-dim);
+    padding: 0.9rem 1.2rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+  .callout strong { color: var(--accent); font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">🐢 turtle.py</a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showLesson(0)" class="active" id="nav-0">Beginner</a></li>
+    <li><a href="#" onclick="showLesson(4)" id="nav-4">Intermediate</a></li>
+    <li><a href="#" onclick="showLesson(8)" id="nav-8">Advanced</a></li>
+    <li><a href="#" onclick="showLesson(11)" id="nav-11">Cheatsheet</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Python Graphics Library</div>
+  <h1>Learn to draw with<br><em>Turtle</em></h1>
+  <p>From your first line to recursive art — a complete hands-on guide to Python's built-in drawing library. No setup needed, just curiosity.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#lessons" onclick="showLesson(0)">Start Learning</a>
+    <a class="btn btn-ghost" href="#lessons" onclick="showLesson(11)">Cheatsheet →</a>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="progress-label">
+    <span>YOUR PROGRESS</span>
+    <span id="progress-text">0 / 12 lessons</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout" id="lessons">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">🌱 Beginner</div>
+      <button class="sidebar-link active" id="sl-0" onclick="showLesson(0)"><span class="dot"></span>What is Turtle?</button>
+      <button class="sidebar-link" id="sl-1" onclick="showLesson(1)"><span class="dot"></span>First Steps</button>
+      <button class="sidebar-link" id="sl-2" onclick="showLesson(2)"><span class="dot"></span>Shapes & Loops</button>
+      <button class="sidebar-link" id="sl-3" onclick="showLesson(3)"><span class="dot"></span>Colors & Fill</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">🌿 Intermediate</div>
+      <button class="sidebar-link" id="sl-4" onclick="showLesson(4)"><span class="dot"></span>Functions</button>
+      <button class="sidebar-link" id="sl-5" onclick="showLesson(5)"><span class="dot"></span>Patterns & Spirals</button>
+      <button class="sidebar-link" id="sl-6" onclick="showLesson(6)"><span class="dot"></span>Screen & Events</button>
+      <button class="sidebar-link" id="sl-7" onclick="showLesson(7)"><span class="dot"></span>Stamps & Clones</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">🌳 Advanced</div>
+      <button class="sidebar-link" id="sl-8" onclick="showLesson(8)"><span class="dot"></span>Recursion</button>
+      <button class="sidebar-link" id="sl-9" onclick="showLesson(9)"><span class="dot"></span>L-Systems</button>
+      <button class="sidebar-link" id="sl-10" onclick="showLesson(10)"><span class="dot"></span>OOP Turtles</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">📖 Reference</div>
+      <button class="sidebar-link" id="sl-11" onclick="showLesson(11)"><span class="dot"></span>Full Cheatsheet</button>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- LESSON 0: What is Turtle? -->
+    <div class="lesson active" id="lesson-0">
+      <div class="lesson-header">
+        <div class="lesson-level level-beginner">● Beginner — Lesson 1 of 4</div>
+        <h2>What is <em>Turtle</em>?</h2>
+        <p class="lesson-desc">Understand the concept of turtle graphics and why it's the perfect first graphics library.</p>
+      </div>
+
+      <p>Python's <code style="color:var(--blue);font-family:'DM Mono',monospace">turtle</code> module is a built-in library that lets you draw shapes, patterns, and artwork by controlling a small cursor — the "turtle" — on screen. It traces a path as it moves.</p>
+
+      <div class="callout"><strong>Origin:</strong> Turtle graphics originated in the Logo programming language in the 1960s, designed to teach children programming through drawing.</div>
+
+      <h3>How it works</h3>
+      <p>Imagine a turtle holding a pen on paper. You give it commands:</p>
+      <ul>
+        <li><strong>Move forward</strong> — the turtle walks forward and draws a line</li>
+        <li><strong>Turn left/right</strong> — the turtle changes direction</li>
+        <li><strong>Pen up/down</strong> — lift pen to move without drawing</li>
+        <li><strong>Change color</strong> — set the pen or fill color</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">hello_turtle.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="kw">import</span> turtle          <span class="cm"># Import the module</span>
+
+t = turtle.<span class="fn">Turtle</span>()    <span class="cm"># Create a turtle object</span>
+t.<span class="fn">forward</span>(<span class="num">100</span>)        <span class="cm"># Move forward 100 pixels</span>
+t.<span class="fn">left</span>(<span class="num">90</span>)           <span class="cm"># Turn left 90 degrees</span>
+t.<span class="fn">forward</span>(<span class="num">100</span>)        <span class="cm"># Move forward again</span>
+
+turtle.<span class="fn">done</span>()         <span class="cm"># Keep window open</span></pre>
+      </div>
+
+      <h3>The coordinate system</h3>
+      <p>The turtle starts at the <strong>center (0, 0)</strong> of the screen, facing right (east). Coordinates increase going right and up, decrease going left and down.</p>
+
+      <div class="playground">
+        <div class="playground-title">Interactive Demo — Watch the Turtle Move</div>
+        <div class="canvas-wrap">
+          <canvas id="canvas-0" width="500" height="280"></canvas>
+        </div>
+        <div class="controls">
+          <div class="control-group">
+            <label>STEPS</label>
+            <input type="range" id="steps-0" min="1" max="8" value="4" oninput="updateDemo0()">
+            <label id="steps-val">4</label>
+          </div>
+          <div class="control-group">
+            <label>SIZE</label>
+            <input type="range" id="size-0" min="20" max="100" value="60" oninput="updateDemo0()">
+          </div>
+          <button class="run-btn" onclick="animateDemo0()">▶ Animate</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">Where does the turtle start when you create a new screen?</div>
+        <div class="quiz-options" id="q0">
+          <button class="quiz-option" onclick="checkQuiz(0, this, false)">Top-left corner (0, 0)</button>
+          <button class="quiz-option" onclick="checkQuiz(0, this, true)">Center of the screen (0, 0)</button>
+          <button class="quiz-option" onclick="checkQuiz(0, this, false)">Bottom-left corner (0, 0)</button>
+          <button class="quiz-option" onclick="checkQuiz(0, this, false)">Top-right corner</button>
+        </div>
+        <div class="quiz-feedback" id="qf0"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" disabled>← Previous</button>
+        <button class="lesson-nav-btn" onclick="showLesson(1)">Next: First Steps →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 1: First Steps -->
+    <div class="lesson" id="lesson-1">
+      <div class="lesson-header">
+        <div class="lesson-level level-beginner">● Beginner — Lesson 2 of 4</div>
+        <h2>Your <em>First Steps</em></h2>
+        <p class="lesson-desc">Learn the essential movement and pen commands to draw anything.</p>
+      </div>
+
+      <h3>Movement Commands</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">movement.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+
+<span class="cm"># Movement</span>
+t.<span class="fn">forward</span>(<span class="num">100</span>)   <span class="cm"># or t.fd(100)</span>
+t.<span class="fn">backward</span>(<span class="num">50</span>)  <span class="cm"># or t.bk(50)</span>
+t.<span class="fn">right</span>(<span class="num">90</span>)      <span class="cm"># or t.rt(90) — turn clockwise</span>
+t.<span class="fn">left</span>(<span class="num">45</span>)       <span class="cm"># or t.lt(45) — turn counter-clockwise</span>
+
+<span class="cm"># Teleport (no drawing)</span>
+t.<span class="fn">penup</span>()        <span class="cm"># lift pen</span>
+t.<span class="fn">goto</span>(<span class="num">200</span>, <span class="num">100</span>) <span class="cm"># jump to coordinate</span>
+t.<span class="fn">pendown</span>()      <span class="cm"># put pen down</span>
+
+<span class="cm"># Reset</span>
+t.<span class="fn">home</span>()         <span class="cm"># go back to (0,0)</span>
+t.<span class="fn">clear</span>()        <span class="cm"># erase drawings</span>
+t.<span class="fn">reset</span>()        <span class="cm"># clear + go home</span></pre>
+      </div>
+
+      <h3>Drawing your first square</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">square.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+
+<span class="cm"># Draw a square — 4 sides, 4 right-angle turns</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>):
+    t.<span class="fn">forward</span>(<span class="num">100</span>)
+    t.<span class="fn">right</span>(<span class="num">90</span>)
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="callout"><strong>Formula:</strong> For any regular polygon with <em>n</em> sides, the turn angle is <em>360 / n</em> degrees. Square = 360/4 = 90°. Triangle = 360/3 = 120°.</div>
+
+      <div class="playground">
+        <div class="playground-title">Polygon Builder</div>
+        <div class="canvas-wrap"><canvas id="canvas-1" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>SIDES</label>
+            <input type="range" id="sides-1" min="3" max="12" value="4" oninput="drawPolygon()">
+            <label id="sides-val">4</label>
+          </div>
+          <div class="control-group">
+            <label>SIZE</label>
+            <input type="range" id="sz-1" min="30" max="100" value="70" oninput="drawPolygon()">
+          </div>
+          <div class="control-group">
+            <label>COLOR</label>
+            <input type="color" id="col-1" value="#6fcf7a" oninput="drawPolygon()">
+          </div>
+          <button class="run-btn" onclick="drawPolygon()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">What angle would you turn to draw a regular hexagon (6 sides)?</div>
+        <div class="quiz-options" id="q1">
+          <button class="quiz-option" onclick="checkQuiz(1, this, false)">45°</button>
+          <button class="quiz-option" onclick="checkQuiz(1, this, false)">72°</button>
+          <button class="quiz-option" onclick="checkQuiz(1, this, true)">60°</button>
+          <button class="quiz-option" onclick="checkQuiz(1, this, false)">90°</button>
+        </div>
+        <div class="quiz-feedback" id="qf1"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(0)">← What is Turtle?</button>
+        <button class="lesson-nav-btn" onclick="showLesson(2)">Next: Shapes & Loops →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 2: Shapes & Loops -->
+    <div class="lesson" id="lesson-2">
+      <div class="lesson-header">
+        <div class="lesson-level level-beginner">● Beginner — Lesson 3 of 4</div>
+        <h2>Shapes & <em>Loops</em></h2>
+        <p class="lesson-desc">Use for-loops to draw complex patterns with very little code.</p>
+      </div>
+
+      <p>The real power of turtle graphics comes when you combine loops with movement. A loop that repeats movement + turn can create stunning patterns.</p>
+
+      <h3>Star</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">star.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">10</span>)   <span class="cm"># 1=slow, 10=fast, 0=instant</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    t.<span class="fn">forward</span>(<span class="num">150</span>)
+    t.<span class="fn">right</span>(<span class="num">144</span>)  <span class="cm"># 360/5 * 2 = 144 for a star</span>
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <h3>Spiral</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">spiral.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">100</span>):
+    t.<span class="fn">forward</span>(i * <span class="num">2</span>)   <span class="cm"># distance grows each step</span>
+    t.<span class="fn">right</span>(<span class="num">91</span>)        <span class="cm"># slightly more than 90°</span>
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Spiral Lab</div>
+        <div class="canvas-wrap"><canvas id="canvas-2" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>TURNS</label>
+            <input type="range" id="turns-2" min="50" max="300" value="120" oninput="drawSpiral()">
+            <label id="turns-val">120</label>
+          </div>
+          <div class="control-group">
+            <label>ANGLE</label>
+            <input type="range" id="angle-2" min="85" max="179" value="91" oninput="drawSpiral()">
+            <label id="angle-val">91°</label>
+          </div>
+          <div class="control-group">
+            <label>COLOR</label>
+            <input type="color" id="col-2" value="#6fcf7a" oninput="drawSpiral()">
+          </div>
+          <button class="run-btn" onclick="drawSpiral()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">In the spiral code, why does the spiral grow outward?</div>
+        <div class="quiz-options" id="q2">
+          <button class="quiz-option" onclick="checkQuiz(2, this, false)">Because the angle is more than 90°</button>
+          <button class="quiz-option" onclick="checkQuiz(2, this, true)">Because forward distance increases each loop iteration (i * 2)</button>
+          <button class="quiz-option" onclick="checkQuiz(2, this, false)">Because we use right() instead of left()</button>
+          <button class="quiz-option" onclick="checkQuiz(2, this, false)">Because speed is set to 0</button>
+        </div>
+        <div class="quiz-feedback" id="qf2"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(1)">← First Steps</button>
+        <button class="lesson-nav-btn" onclick="showLesson(3)">Next: Colors & Fill →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 3: Colors -->
+    <div class="lesson" id="lesson-3">
+      <div class="lesson-header">
+        <div class="lesson-level level-beginner">● Beginner — Lesson 4 of 4</div>
+        <h2>Colors & <em>Fill</em></h2>
+        <p class="lesson-desc">Make your drawings colorful using pen colors, fill colors, and background.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">colors.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+s = turtle.<span class="fn">Screen</span>()
+
+<span class="cm"># Background color</span>
+s.<span class="fn">bgcolor</span>(<span class="str">"black"</span>)
+
+<span class="cm"># Pen color (outline)</span>
+t.<span class="fn">pencolor</span>(<span class="str">"white"</span>)
+
+<span class="cm"># Fill color</span>
+t.<span class="fn">fillcolor</span>(<span class="str">"gold"</span>)
+
+<span class="cm"># Shorthand: set both at once</span>
+t.<span class="fn">color</span>(<span class="str">"white"</span>, <span class="str">"gold"</span>)  <span class="cm"># (pen, fill)</span>
+
+<span class="cm"># Draw a filled shape</span>
+t.<span class="fn">begin_fill</span>()
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">6</span>):
+    t.<span class="fn">forward</span>(<span class="num">80</span>)
+    t.<span class="fn">right</span>(<span class="num">60</span>)
+t.<span class="fn">end_fill</span>()
+
+<span class="cm"># Hex colors work too!</span>
+t.<span class="fn">pencolor</span>(<span class="str">"#FF6B6B"</span>)
+
+<span class="cm"># Pen thickness</span>
+t.<span class="fn">pensize</span>(<span class="num">3</span>)  <span class="cm"># width in pixels</span></pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Color Flower</div>
+        <div class="canvas-wrap"><canvas id="canvas-3" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>PETALS</label>
+            <input type="range" id="petals-3" min="3" max="24" value="8" oninput="drawFlower()">
+            <label id="petals-val">8</label>
+          </div>
+          <div class="control-group">
+            <label>PEN</label>
+            <input type="color" id="pen-3" value="#ffffff" oninput="drawFlower()">
+          </div>
+          <div class="control-group">
+            <label>FILL</label>
+            <input type="color" id="fill-3" value="#6fcf7a" oninput="drawFlower()">
+          </div>
+          <button class="run-btn" onclick="drawFlower()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">What does <code style="color:var(--blue);font-family:'DM Mono',monospace">t.color("red", "blue")</code> set?</div>
+        <div class="quiz-options" id="q3">
+          <button class="quiz-option" onclick="checkQuiz(3, this, false)">Background red, turtle body blue</button>
+          <button class="quiz-option" onclick="checkQuiz(3, this, true)">Pen color red, fill color blue</button>
+          <button class="quiz-option" onclick="checkQuiz(3, this, false)">Fill color red, pen color blue</button>
+          <button class="quiz-option" onclick="checkQuiz(3, this, false)">Text color and border color</button>
+        </div>
+        <div class="quiz-feedback" id="qf3"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(2)">← Shapes & Loops</button>
+        <button class="lesson-nav-btn" onclick="showLesson(4)">Next: Functions →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 4: Functions -->
+    <div class="lesson" id="lesson-4">
+      <div class="lesson-header">
+        <div class="lesson-level level-intermediate">◆ Intermediate — Lesson 5</div>
+        <h2>Reusable <em>Functions</em></h2>
+        <p class="lesson-desc">Organize turtle code into functions for cleaner, reusable drawing routines.</p>
+      </div>
+
+      <p>Once you need to draw the same shape multiple times, functions are essential. A function lets you define drawing logic once and call it anywhere with different parameters.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">functions.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+
+<span class="kw">def</span> <span class="fn">draw_polygon</span>(sides, size, color=<span class="str">"white"</span>):
+    <span class="str">"""Draw a regular polygon at the turtle's current position."""</span>
+    t.<span class="fn">pencolor</span>(color)
+    angle = <span class="num">360</span> / sides
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(sides):
+        t.<span class="fn">forward</span>(size)
+        t.<span class="fn">right</span>(angle)
+
+<span class="kw">def</span> <span class="fn">move_to</span>(x, y):
+    <span class="str">"""Move without drawing."""</span>
+    t.<span class="fn">penup</span>()
+    t.<span class="fn">goto</span>(x, y)
+    t.<span class="fn">pendown</span>()
+
+<span class="cm"># Use the functions</span>
+colors = [<span class="str">"red"</span>, <span class="str">"gold"</span>, <span class="str">"cyan"</span>, <span class="str">"magenta"</span>]
+positions = [(-<span class="num">150</span>, <span class="num">0</span>), (-<span class="num">50</span>, <span class="num">0</span>), (<span class="num">50</span>, <span class="num">0</span>), (<span class="num">150</span>, <span class="num">0</span>)]
+
+<span class="kw">for</span> i, (x, y) <span class="kw">in</span> <span class="fn">enumerate</span>(positions):
+    <span class="fn">move_to</span>(x, y)
+    <span class="fn">draw_polygon</span>(i + <span class="num">3</span>, <span class="num">40</span>, colors[i])
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Function Gallery</div>
+        <div class="canvas-wrap"><canvas id="canvas-4" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>SHAPE</label>
+            <select id="shape-4" onchange="drawFunctionDemo()">
+              <option value="grid">Grid of polygons</option>
+              <option value="row">Row of shapes</option>
+              <option value="random">Random placement</option>
+            </select>
+          </div>
+          <button class="run-btn" onclick="drawFunctionDemo()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">What does <code style="color:var(--blue);font-family:'DM Mono',monospace">color="white"</code> mean in a function definition?</div>
+        <div class="quiz-options" id="q4">
+          <button class="quiz-option" onclick="checkQuiz(4, this, false)">The function only accepts "white"</button>
+          <button class="quiz-option" onclick="checkQuiz(4, this, true)">It's a default value — used if no color is passed in</button>
+          <button class="quiz-option" onclick="checkQuiz(4, this, false)">It sets the screen to white</button>
+          <button class="quiz-option" onclick="checkQuiz(4, this, false)">It's a comment</button>
+        </div>
+        <div class="quiz-feedback" id="qf4"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(3)">← Colors & Fill</button>
+        <button class="lesson-nav-btn" onclick="showLesson(5)">Next: Patterns →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 5: Patterns -->
+    <div class="lesson" id="lesson-5">
+      <div class="lesson-header">
+        <div class="lesson-level level-intermediate">◆ Intermediate — Lesson 6</div>
+        <h2>Patterns & <em>Spirographs</em></h2>
+        <p class="lesson-desc">Create stunning geometric patterns using nested loops and color cycling.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">spirograph.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+
+colors = [<span class="str">"red"</span>, <span class="str">"orange"</span>, <span class="str">"yellow"</span>, 
+          <span class="str">"green"</span>, <span class="str">"blue"</span>, <span class="str">"violet"</span>]
+
+<span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">360</span>):
+    t.<span class="fn">pencolor</span>(colors[x % <span class="fn">len</span>(colors)])
+    t.<span class="fn">width</span>(x // <span class="num">100</span> + <span class="num">1</span>)
+    t.<span class="fn">forward</span>(x)
+    t.<span class="fn">left</span>(<span class="num">59</span>)
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Spirograph Machine</div>
+        <div class="canvas-wrap"><canvas id="canvas-5" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>STEPS</label>
+            <input type="range" id="steps-5" min="50" max="500" value="200" oninput="drawSpirograph()">
+            <label id="ssteps-val">200</label>
+          </div>
+          <div class="control-group">
+            <label>ANGLE</label>
+            <input type="range" id="sangle-5" min="1" max="179" value="59" oninput="drawSpirograph()">
+            <label id="sangle-val">59°</label>
+          </div>
+          <div class="control-group">
+            <label>PALETTE</label>
+            <select id="palette-5" onchange="drawSpirograph()">
+              <option value="rainbow">Rainbow</option>
+              <option value="warm">Warm</option>
+              <option value="cool">Cool</option>
+              <option value="mono">Monochrome</option>
+            </select>
+          </div>
+          <button class="run-btn" onclick="drawSpirograph()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(4)">← Functions</button>
+        <button class="lesson-nav-btn" onclick="showLesson(6)">Next: Screen & Events →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 6: Events -->
+    <div class="lesson" id="lesson-6">
+      <div class="lesson-header">
+        <div class="lesson-level level-intermediate">◆ Intermediate — Lesson 7</div>
+        <h2>Screen & <em>Events</em></h2>
+        <p class="lesson-desc">Make your turtle respond to keyboard and mouse input for interactive programs.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">events.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+
+s = turtle.<span class="fn">Screen</span>()
+s.<span class="fn">title</span>(<span class="str">"My Turtle App"</span>)
+s.<span class="fn">setup</span>(width=<span class="num">600</span>, height=<span class="num">500</span>)
+s.<span class="fn">bgcolor</span>(<span class="str">"black"</span>)
+
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">color</span>(<span class="str">"lime"</span>)
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+
+<span class="cm"># Keyboard event handlers</span>
+<span class="kw">def</span> <span class="fn">move_forward</span>():  t.<span class="fn">forward</span>(<span class="num">20</span>)
+<span class="kw">def</span> <span class="fn">move_back</span>():     t.<span class="fn">backward</span>(<span class="num">20</span>)
+<span class="kw">def</span> <span class="fn">turn_left</span>():     t.<span class="fn">left</span>(<span class="num">15</span>)
+<span class="kw">def</span> <span class="fn">turn_right</span>():    t.<span class="fn">right</span>(<span class="num">15</span>)
+<span class="kw">def</span> <span class="fn">pen_toggle</span>():
+    <span class="kw">if</span> t.<span class="fn">isdown</span>(): t.<span class="fn">penup</span>()
+    <span class="kw">else</span>: t.<span class="fn">pendown</span>()
+
+<span class="cm"># Bind keys</span>
+s.<span class="fn">onkey</span>(move_forward, <span class="str">"Up"</span>)
+s.<span class="fn">onkey</span>(move_back,    <span class="str">"Down"</span>)
+s.<span class="fn">onkey</span>(turn_left,   <span class="str">"Left"</span>)
+s.<span class="fn">onkey</span>(turn_right,  <span class="str">"Right"</span>)
+s.<span class="fn">onkey</span>(pen_toggle,  <span class="str">"space"</span>)
+s.<span class="fn">listen</span>()  <span class="cm"># start listening for input</span>
+
+<span class="cm"># Mouse click: move turtle there</span>
+s.<span class="fn">onclick</span>(<span class="kw">lambda</span> x, y: t.<span class="fn">goto</span>(x, y))
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="callout"><strong>Tip:</strong> Always call <code style="color:var(--blue);font-family:'DM Mono',monospace">s.listen()</code> after binding keys, or the screen won't capture keyboard input.</div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(5)">← Patterns</button>
+        <button class="lesson-nav-btn" onclick="showLesson(7)">Next: Stamps →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 7: Stamps -->
+    <div class="lesson" id="lesson-7">
+      <div class="lesson-header">
+        <div class="lesson-level level-intermediate">◆ Intermediate — Lesson 8</div>
+        <h2>Stamps & <em>Shapes</em></h2>
+        <p class="lesson-desc">Use stamps to leave copies of the turtle, and change turtle appearance.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">stamps.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+
+<span class="cm"># Turtle shapes: arrow, turtle, circle, square, triangle, classic</span>
+t.<span class="fn">shape</span>(<span class="str">"turtle"</span>)
+t.<span class="fn">shapesize</span>(stretch_wid=<span class="num">2</span>, stretch_len=<span class="num">2</span>)
+
+<span class="cm"># Stamp leaves a permanent copy at current position</span>
+colors = [<span class="str">"red"</span>, <span class="str">"orange"</span>, <span class="str">"yellow"</span>, <span class="str">"green"</span>]
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">20</span>):
+    t.<span class="fn">fillcolor</span>(colors[i % <span class="fn">len</span>(colors)])
+    t.<span class="fn">stamp</span>()          <span class="cm"># leave a copy here</span>
+    t.<span class="fn">forward</span>(<span class="num">30</span>)
+    t.<span class="fn">right</span>(<span class="num">18</span>)        <span class="cm"># makes a circle of turtles</span>
+
+<span class="cm"># Custom shape with polygon</span>
+turtle.<span class="fn">register_shape</span>(<span class="str">"diamond"</span>, 
+    ((<span class="num">0</span>,<span class="num">10</span>), (<span class="num">10</span>,<span class="num">0</span>), (<span class="num">0</span>,-<span class="num">10</span>), (-<span class="num">10</span>,<span class="num">0</span>)))
+t.<span class="fn">shape</span>(<span class="str">"diamond"</span>)
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Stamp Circle</div>
+        <div class="canvas-wrap"><canvas id="canvas-7" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>COUNT</label>
+            <input type="range" id="count-7" min="4" max="36" value="12" oninput="drawStamps()">
+            <label id="count-val">12</label>
+          </div>
+          <div class="control-group">
+            <label>SIZE</label>
+            <input type="range" id="ssize-7" min="5" max="20" value="10" oninput="drawStamps()">
+          </div>
+          <button class="run-btn" onclick="drawStamps()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(6)">← Screen & Events</button>
+        <button class="lesson-nav-btn" onclick="showLesson(8)">Next: Recursion →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 8: Recursion -->
+    <div class="lesson" id="lesson-8">
+      <div class="lesson-header">
+        <div class="lesson-level level-advanced">▲ Advanced — Lesson 9</div>
+        <h2>Recursive <em>Trees</em></h2>
+        <p class="lesson-desc">Use recursion to create organic branching structures like trees and fractals.</p>
+      </div>
+
+      <p>Recursion means a function calls itself. With turtle graphics, this creates breathtaking self-similar structures called <strong>fractals</strong>.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">fractal_tree.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+t = turtle.<span class="fn">Turtle</span>()
+t.<span class="fn">speed</span>(<span class="num">0</span>)
+t.<span class="fn">left</span>(<span class="num">90</span>)           <span class="cm"># point upward</span>
+t.<span class="fn">penup</span>()
+t.<span class="fn">goto</span>(<span class="num">0</span>, -<span class="num">200</span>)      <span class="cm"># start near bottom</span>
+t.<span class="fn">pendown</span>()
+
+<span class="kw">def</span> <span class="fn">draw_branch</span>(length, depth):
+    <span class="kw">if</span> depth == <span class="num">0</span>:     <span class="cm"># base case — stop recursing</span>
+        <span class="kw">return</span>
+    
+    <span class="cm"># Color: brown for trunk, green for leaves</span>
+    <span class="kw">if</span> length < <span class="num">20</span>:
+        t.<span class="fn">pencolor</span>(<span class="str">"green"</span>)
+    <span class="kw">else</span>:
+        t.<span class="fn">pencolor</span>(<span class="str">"saddlebrown"</span>)
+    
+    t.<span class="fn">pensize</span>(depth)    <span class="cm"># thicker for trunk</span>
+    t.<span class="fn">forward</span>(length)  <span class="cm"># draw this branch</span>
+    
+    t.<span class="fn">right</span>(<span class="num">25</span>)         <span class="cm"># turn right, draw right subtree</span>
+    <span class="fn">draw_branch</span>(length * <span class="num">0.7</span>, depth - <span class="num">1</span>)
+    
+    t.<span class="fn">left</span>(<span class="num">50</span>)          <span class="cm"># turn left, draw left subtree</span>
+    <span class="fn">draw_branch</span>(length * <span class="num">0.7</span>, depth - <span class="num">1</span>)
+    
+    t.<span class="fn">right</span>(<span class="num">25</span>)         <span class="cm"># restore original direction</span>
+    t.<span class="fn">backward</span>(length) <span class="cm"># back up the branch</span>
+
+<span class="fn">draw_branch</span>(<span class="num">100</span>, <span class="num">8</span>)
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="callout"><strong>Key insight:</strong> Every recursive call reduces the <code style="color:var(--blue);font-family:'DM Mono',monospace">depth</code> by 1. When <code style="color:var(--blue);font-family:'DM Mono',monospace">depth == 0</code>, the function stops — this is the <em>base case</em> that prevents infinite loops.</div>
+
+      <div class="playground">
+        <div class="playground-title">Fractal Tree Builder</div>
+        <div class="canvas-wrap"><canvas id="canvas-8" width="500" height="300"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>DEPTH</label>
+            <input type="range" id="depth-8" min="2" max="9" value="7" oninput="drawTree()">
+            <label id="depth-val">7</label>
+          </div>
+          <div class="control-group">
+            <label>ANGLE</label>
+            <input type="range" id="tangle-8" min="10" max="60" value="25" oninput="drawTree()">
+            <label id="tangle-val">25°</label>
+          </div>
+          <div class="control-group">
+            <label>RATIO</label>
+            <input type="range" id="ratio-8" min="40" max="90" value="70" oninput="drawTree()">
+            <label id="ratio-val">0.70</label>
+          </div>
+          <button class="run-btn" onclick="drawTree()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">⬡ QUICK CHECK</div>
+        <div class="quiz-q">What is the "base case" in a recursive function?</div>
+        <div class="quiz-options" id="q8">
+          <button class="quiz-option" onclick="checkQuiz(8, this, false)">The first line of the function</button>
+          <button class="quiz-option" onclick="checkQuiz(8, this, false)">The part that calls itself</button>
+          <button class="quiz-option" onclick="checkQuiz(8, this, true)">The condition that stops the recursion</button>
+          <button class="quiz-option" onclick="checkQuiz(8, this, false)">The main() call</button>
+        </div>
+        <div class="quiz-feedback" id="qf8"></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(7)">← Stamps</button>
+        <button class="lesson-nav-btn" onclick="showLesson(9)">Next: L-Systems →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 9: L-Systems -->
+    <div class="lesson" id="lesson-9">
+      <div class="lesson-header">
+        <div class="lesson-level level-advanced">▲ Advanced — Lesson 10</div>
+        <h2>Lindenmayer <em>Systems</em></h2>
+        <p class="lesson-desc">Generate fractal patterns using string-rewriting rules — the Koch Snowflake and more.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">lsystem.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+
+<span class="kw">def</span> <span class="fn">apply_rules</span>(axiom, rules, iterations):
+    <span class="str">"""Expand string using L-system rules."""</span>
+    result = axiom
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(iterations):
+        result = <span class="str">""</span>.<span class="fn">join</span>(rules.<span class="fn">get</span>(c, c) <span class="kw">for</span> c <span class="kw">in</span> result)
+    <span class="kw">return</span> result
+
+<span class="kw">def</span> <span class="fn">draw_lsystem</span>(t, instructions, angle, length):
+    <span class="str">"""Interpret L-system string as turtle commands."""</span>
+    stack = []
+    <span class="kw">for</span> cmd <span class="kw">in</span> instructions:
+        <span class="kw">if</span>   cmd == <span class="str">"F"</span>: t.<span class="fn">forward</span>(length)
+        <span class="kw">elif</span> cmd == <span class="str">"+"</span>: t.<span class="fn">right</span>(angle)
+        <span class="kw">elif</span> cmd == <span class="str">"-"</span>: t.<span class="fn">left</span>(angle)
+        <span class="kw">elif</span> cmd == <span class="str">"["</span>: stack.<span class="fn">append</span>((t.<span class="fn">pos</span>(), t.<span class="fn">heading</span>()))
+        <span class="kw">elif</span> cmd == <span class="str">"]"</span>:
+            pos, head = stack.<span class="fn">pop</span>()
+            t.<span class="fn">penup</span>(); t.<span class="fn">goto</span>(pos); t.<span class="fn">setheading</span>(head); t.<span class="fn">pendown</span>()
+
+<span class="cm"># Koch Snowflake</span>
+rules = {<span class="str">"F"</span>: <span class="str">"F+F--F+F"</span>}
+axiom = <span class="str">"F--F--F"</span>
+instructions = <span class="fn">apply_rules</span>(axiom, rules, <span class="num">4</span>)
+<span class="fn">draw_lsystem</span>(t, instructions, angle=<span class="num">60</span>, length=<span class="num">5</span>)
+
+<span class="cm"># Plant-like L-System</span>
+rules = {<span class="str">"F"</span>: <span class="str">"FF"</span>, <span class="str">"X"</span>: <span class="str">"F+[-F-XF-X][+FF][--XF[+X]][++F-X]"</span>}
+axiom = <span class="str">"X"</span>
+instructions = <span class="fn">apply_rules</span>(axiom, rules, <span class="num">4</span>)
+<span class="fn">draw_lsystem</span>(t, instructions, angle=<span class="num">25</span>, length=<span class="num">5</span>)</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">L-System Explorer</div>
+        <div class="canvas-wrap"><canvas id="canvas-9" width="500" height="300"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>PRESET</label>
+            <select id="preset-9" onchange="drawLSystem()">
+              <option value="koch">Koch Snowflake</option>
+              <option value="sierpinski">Sierpinski</option>
+              <option value="plant">Plant</option>
+              <option value="dragon">Dragon Curve</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>ITERS</label>
+            <input type="range" id="iter-9" min="1" max="6" value="4" oninput="drawLSystem()">
+            <label id="iter-val">4</label>
+          </div>
+          <button class="run-btn" onclick="drawLSystem()">▶ Draw</button>
+        </div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(8)">← Recursion</button>
+        <button class="lesson-nav-btn" onclick="showLesson(10)">Next: OOP →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 10: OOP -->
+    <div class="lesson" id="lesson-10">
+      <div class="lesson-header">
+        <div class="lesson-level level-advanced">▲ Advanced — Lesson 11</div>
+        <h2>OOP with <em>Multiple Turtles</em></h2>
+        <p class="lesson-desc">Use classes and multiple turtle instances to build complex animated scenes.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">oop_turtles.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> turtle
+<span class="kw">import</span> random
+
+<span class="kw">class</span> <span class="cls">Firework</span>:
+    <span class="str">"""A turtle that draws a firework burst."""</span>
+    
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, x, y, color, rays=<span class="num">12</span>):
+        self.t = turtle.<span class="fn">Turtle</span>()
+        self.t.<span class="fn">speed</span>(<span class="num">0</span>)
+        self.t.<span class="fn">penup</span>()
+        self.t.<span class="fn">goto</span>(x, y)
+        self.t.<span class="fn">pendown</span>()
+        self.t.<span class="fn">color</span>(color)
+        self.t.<span class="fn">hideturtle</span>()
+        self.rays = rays
+    
+    <span class="kw">def</span> <span class="fn">explode</span>(self, size=<span class="num">50</span>):
+        angle = <span class="num">360</span> / self.rays
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(self.rays):
+            self.t.<span class="fn">forward</span>(size)
+            self.t.<span class="fn">backward</span>(size)
+            self.t.<span class="fn">left</span>(angle)
+    
+    <span class="kw">def</span> <span class="fn">clear</span>(self):
+        self.t.<span class="fn">clear</span>()
+
+<span class="cm"># Create multiple fireworks</span>
+s = turtle.<span class="fn">Screen</span>()
+s.<span class="fn">bgcolor</span>(<span class="str">"black"</span>)
+
+fireworks = [
+    <span class="cls">Firework</span>(-<span class="num">150</span>, <span class="num">100</span>, <span class="str">"red"</span>),
+    <span class="cls">Firework</span>(<span class="num">0</span>, <span class="num">50</span>, <span class="str">"gold"</span>, rays=<span class="num">8</span>),
+    <span class="cls">Firework</span>(<span class="num">150</span>, <span class="num">100</span>, <span class="str">"cyan"</span>, rays=<span class="num">16</span>),
+]
+
+<span class="kw">for</span> fw <span class="kw">in</span> fireworks:
+    fw.<span class="fn">explode</span>(<span class="num">80</span>)
+
+turtle.<span class="fn">done</span>()</pre>
+      </div>
+
+      <div class="playground">
+        <div class="playground-title">Fireworks Show</div>
+        <div class="canvas-wrap"><canvas id="canvas-10" width="500" height="280"></canvas></div>
+        <div class="controls">
+          <div class="control-group">
+            <label>COUNT</label>
+            <input type="range" id="fw-count" min="1" max="8" value="4" oninput="drawFireworks()">
+            <label id="fw-val">4</label>
+          </div>
+          <div class="control-group">
+            <label>RAYS</label>
+            <input type="range" id="fw-rays" min="4" max="24" value="12" oninput="drawFireworks()">
+          </div>
+          <button class="run-btn" onclick="drawFireworks()">▶ Launch!</button>
+        </div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(9)">← L-Systems</button>
+        <button class="lesson-nav-btn" onclick="showLesson(11)">Cheatsheet →</button>
+      </div>
+    </div>
+
+    <!-- LESSON 11: Cheatsheet -->
+    <div class="lesson" id="lesson-11">
+      <div class="lesson-header">
+        <div class="lesson-level" style="color:var(--blue)">📖 Reference</div>
+        <h2>Complete <em>Cheatsheet</em></h2>
+        <p class="lesson-desc">Every turtle method you'll ever need, organized by category.</p>
+      </div>
+
+      <h3>Movement</h3>
+      <div class="cheat-grid">
+        <div class="cheat-card"><div class="cheat-method">t.forward(n)</div><div class="cheat-desc">Move forward n pixels</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.backward(n)</div><div class="cheat-desc">Move backward n pixels</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.right(deg)</div><div class="cheat-desc">Turn clockwise</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.left(deg)</div><div class="cheat-desc">Turn counter-clockwise</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.goto(x, y)</div><div class="cheat-desc">Move to coordinate</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.home()</div><div class="cheat-desc">Return to (0,0)</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.setheading(deg)</div><div class="cheat-desc">Set absolute direction</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.circle(r)</div><div class="cheat-desc">Draw a circle radius r</div></div>
+      </div>
+
+      <h3>Pen Control</h3>
+      <div class="cheat-grid">
+        <div class="cheat-card"><div class="cheat-method">t.penup()</div><div class="cheat-desc">Stop drawing</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.pendown()</div><div class="cheat-desc">Start drawing</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.pensize(n)</div><div class="cheat-desc">Line width in pixels</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.pencolor(c)</div><div class="cheat-desc">Set line color</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.fillcolor(c)</div><div class="cheat-desc">Set fill color</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.begin_fill()</div><div class="cheat-desc">Start fill region</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.end_fill()</div><div class="cheat-desc">Close and fill</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.color(p, f)</div><div class="cheat-desc">Set pen + fill at once</div></div>
+      </div>
+
+      <h3>Turtle Appearance</h3>
+      <div class="cheat-grid">
+        <div class="cheat-card"><div class="cheat-method">t.shape("turtle")</div><div class="cheat-desc">Set shape: arrow, turtle, circle, square, triangle</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.shapesize(w, l)</div><div class="cheat-desc">Scale the turtle shape</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.hideturtle()</div><div class="cheat-desc">Make turtle invisible</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.showturtle()</div><div class="cheat-desc">Make turtle visible</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.stamp()</div><div class="cheat-desc">Leave a copy at position</div></div>
+        <div class="cheat-card"><div class="cheat-method">t.speed(n)</div><div class="cheat-desc">0=instant, 1-10 slow→fast</div></div>
+      </div>
+
+      <h3>Screen</h3>
+      <div class="cheat-grid">
+        <div class="cheat-card"><div class="cheat-method">s.bgcolor(c)</div><div class="cheat-desc">Set background color</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.setup(w, h)</div><div class="cheat-desc">Set window size</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.title("…")</div><div class="cheat-desc">Set window title</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.onkey(fn, key)</div><div class="cheat-desc">Bind keyboard event</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.onclick(fn)</div><div class="cheat-desc">Bind mouse click</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.listen()</div><div class="cheat-desc">Start listening to input</div></div>
+        <div class="cheat-card"><div class="cheat-method">turtle.done()</div><div class="cheat-desc">Keep window open</div></div>
+        <div class="cheat-card"><div class="cheat-method">s.tracer(0, 0)</div><div class="cheat-desc">Disable animation</div></div>
+      </div>
+
+      <div class="lesson-nav">
+        <button class="lesson-nav-btn" onclick="showLesson(10)">← OOP Turtles</button>
+        <button class="lesson-nav-btn" onclick="showLesson(0)">Start Over ↺</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─── STATE ───
+const totalLessons = 12;
+const completed = new Set();
+let currentLesson = 0;
+
+// ─── NAVIGATION ───
+function showLesson(n) {
+  document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+
+  const lesson = document.getElementById('lesson-' + n);
+  if (lesson) {
+    lesson.classList.add('active');
+    completed.add(n);
+  }
+  const sl = document.getElementById('sl-' + n);
+  if (sl) { sl.classList.add('active'); sl.classList.add('done'); }
+
+  currentLesson = n;
+  updateProgress();
+  window.scrollTo({ top: document.getElementById('lessons').offsetTop - 70, behavior: 'smooth' });
+
+  // Trigger canvas draws
+  setTimeout(() => {
+    if (n === 0) animateDemo0(true);
+    if (n === 1) drawPolygon();
+    if (n === 2) drawSpiral();
+    if (n === 3) drawFlower();
+    if (n === 4) drawFunctionDemo();
+    if (n === 5) drawSpirograph();
+    if (n === 7) drawStamps();
+    if (n === 8) drawTree();
+    if (n === 9) drawLSystem();
+    if (n === 10) drawFireworks();
+  }, 100);
+}
+
+function updateProgress() {
+  const pct = Math.round((completed.size / totalLessons) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = completed.size + ' / ' + totalLessons + ' lessons';
+  completed.forEach(n => {
+    const sl = document.getElementById('sl-' + n);
+    if (sl) sl.classList.add('done');
+  });
+}
+
+// ─── QUIZ ───
+function checkQuiz(id, btn, correct) {
+  const container = document.getElementById('q' + id);
+  const feedback = document.getElementById('qf' + id);
+  container.querySelectorAll('.quiz-option').forEach(b => {
+    b.disabled = true;
+    b.style.cursor = 'default';
+  });
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  feedback.className = 'quiz-feedback show ' + (correct ? 'ok' : 'bad');
+  feedback.textContent = correct ? '✓ Correct! Well done.' : '✗ Not quite — try reviewing the lesson again.';
+}
+
+// ─── COPY ───
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  });
+}
+
+// ─── CANVAS HELPER ───
+function getCtx(id) {
+  const c = document.getElementById(id);
+  return c ? c.getContext('2d') : null;
+}
+function clearCanvas(id) {
+  const c = document.getElementById(id);
+  if (!c) return null;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, c.width, c.height);
+  return ctx;
+}
+
+// ─── DEMO 0: Intro ───
+let animFrame = null;
+function animateDemo0(instant) {
+  const n = parseInt(document.getElementById('steps-0').value);
+  const size = parseInt(document.getElementById('size-0').value);
+  document.getElementById('steps-val').textContent = n;
+  const ctx = clearCanvas('canvas-0');
+  if (!ctx) return;
+  const cx = 250, cy = 140;
+  const angle = 360 / n;
+  const pts = [];
+  let x = cx - size/2, y = cy + size/2, dir = 0;
+  pts.push([x, y]);
+  for (let i = 0; i < n; i++) {
+    const rad = (dir * Math.PI) / 180;
+    x += size * Math.cos(rad);
+    y -= size * Math.sin(rad);
+    pts.push([x, y]);
+    dir += angle;
+  }
+  ctx.strokeStyle = '#6fcf7a';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  if (instant) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.stroke();
+    return;
+  }
+  let step = 0;
+  function frame() {
+    if (step >= pts.length - 1) return;
+    ctx.beginPath();
+    ctx.moveTo(pts[step][0], pts[step][1]);
+    ctx.lineTo(pts[step+1][0], pts[step+1][1]);
+    ctx.stroke();
+    step++;
+    setTimeout(frame, 150);
+  }
+  frame();
+}
+function updateDemo0() { animateDemo0(true); }
+
+// ─── DEMO 1: Polygon ───
+function drawPolygon() {
+  const sides = parseInt(document.getElementById('sides-1').value);
+  const size = parseInt(document.getElementById('sz-1').value);
+  const color = document.getElementById('col-1').value;
+  document.getElementById('sides-val').textContent = sides;
+  const ctx = clearCanvas('canvas-1');
+  if (!ctx) return;
+  const cx = 250, cy = 140;
+  const angle = (2 * Math.PI) / sides;
+  const r = size;
+  ctx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = angle * i - Math.PI / 2;
+    const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.fillStyle = color + '22';
+  ctx.fill();
+  // label
+  ctx.fillStyle = '#7a8c7d';
+  ctx.font = '12px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(sides + ' sides  |  turn angle: ' + Math.round(360/sides) + '°', 250, 265);
+}
+
+// ─── DEMO 2: Spiral ───
+function drawSpiral() {
+  const turns = parseInt(document.getElementById('turns-2').value);
+  const angle = parseInt(document.getElementById('angle-2').value);
+  const color = document.getElementById('col-2').value;
+  document.getElementById('turns-val').textContent = turns;
+  document.getElementById('angle-val').textContent = angle + '°';
+  const ctx = clearCanvas('canvas-2');
+  if (!ctx) return;
+  let x = 250, y = 140, dir = 0;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  for (let i = 0; i < turns; i++) {
+    const len = i * 1.2;
+    const rad = (dir * Math.PI) / 180;
+    x += len * Math.cos(rad);
+    y += len * Math.sin(rad);
+    ctx.lineTo(x, y);
+    dir += angle;
+  }
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// ─── DEMO 3: Flower ───
+function drawFlower() {
+  const petals = parseInt(document.getElementById('petals-3').value);
+  const pen = document.getElementById('pen-3').value;
+  const fill = document.getElementById('fill-3').value;
+  document.getElementById('petals-val').textContent = petals;
+  const ctx = clearCanvas('canvas-3');
+  if (!ctx) return;
+  const cx = 250, cy = 140, size = 60;
+  const angleStep = (2 * Math.PI) / petals;
+  for (let p = 0; p < petals; p++) {
+    const a = angleStep * p;
+    ctx.beginPath();
+    ctx.ellipse(
+      cx + (size * 0.5) * Math.cos(a),
+      cy + (size * 0.5) * Math.sin(a),
+      size * 0.35, size * 0.7,
+      a, 0, 2 * Math.PI
+    );
+    ctx.fillStyle = fill + 'aa';
+    ctx.strokeStyle = pen;
+    ctx.lineWidth = 1;
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, 15, 0, 2 * Math.PI);
+  ctx.fillStyle = '#e5c07b';
+  ctx.fill();
+}
+
+// ─── DEMO 4: Functions ───
+function drawFunctionDemo() {
+  const mode = document.getElementById('shape-4').value;
+  const ctx = clearCanvas('canvas-4');
+  if (!ctx) return;
+  const colors = ['#e06c75','#e5c07b','#6fcf7a','#61afef','#c678dd','#d19a66'];
+  function drawPoly(x, y, sides, size, color) {
+    const a = (2 * Math.PI) / sides;
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+      const ang = a * i - Math.PI / 2;
+      const px = x + size * Math.cos(ang), py = y + size * Math.sin(ang);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.fillStyle = color + '22';
+    ctx.fill(); ctx.stroke();
+  }
+  if (mode === 'row') {
+    [3,4,5,6,7].forEach((s, i) => drawPoly(80 + i*84, 140, s, 36, colors[i % colors.length]));
+  } else if (mode === 'grid') {
+    let ci = 0;
+    for (let r = 0; r < 2; r++)
+      for (let c = 0; c < 4; c++)
+        drawPoly(65 + c * 120, 80 + r * 110, 3 + ci, 35, colors[ci++ % colors.length]);
+  } else {
+    for (let i = 0; i < 8; i++) {
+      const x = 60 + Math.random() * 380;
+      const y = 40 + Math.random() * 200;
+      drawPoly(x, y, 3 + Math.floor(Math.random() * 6), 25 + Math.random() * 25, colors[i % colors.length]);
+    }
+  }
+}
+
+// ─── DEMO 5: Spirograph ───
+function drawSpirograph() {
+  const steps = parseInt(document.getElementById('steps-5').value);
+  const angle = parseInt(document.getElementById('sangle-5').value);
+  const palette = document.getElementById('palette-5').value;
+  document.getElementById('ssteps-val').textContent = steps;
+  document.getElementById('sangle-val').textContent = angle + '°';
+  const palettes = {
+    rainbow: ['#e06c75','#d19a66','#e5c07b','#6fcf7a','#61afef','#c678dd'],
+    warm:    ['#e06c75','#d19a66','#e5c07b','#ff9f43','#ee5a24'],
+    cool:    ['#61afef','#c678dd','#4ab856','#00cec9','#6c5ce7'],
+    mono:    ['#e8ede9','#b0bdb2','#7a8c7d','#4a5c4d','#2a3c2d'],
+  };
+  const cols = palettes[palette];
+  const ctx = clearCanvas('canvas-5');
+  if (!ctx) return;
+  let x = 250, y = 140, dir = 0;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  for (let i = 0; i < steps; i++) {
+    const len = i * 0.9;
+    const rad = (dir * Math.PI) / 180;
+    x += len * Math.cos(rad);
+    y += len * Math.sin(rad);
+    ctx.strokeStyle = cols[i % cols.length];
+    ctx.lineWidth = 1.2;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    dir += angle;
+  }
+}
+
+// ─── DEMO 7: Stamps ───
+function drawStamps() {
+  const count = parseInt(document.getElementById('count-7').value);
+  const size = parseInt(document.getElementById('ssize-7').value);
+  document.getElementById('count-val').textContent = count;
+  const ctx = clearCanvas('canvas-7');
+  if (!ctx) return;
+  const cx = 250, cy = 140, r = 90;
+  const colors = ['#e06c75','#d19a66','#e5c07b','#6fcf7a','#61afef','#c678dd'];
+  for (let i = 0; i < count; i++) {
+    const a = (2 * Math.PI / count) * i - Math.PI / 2;
+    const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+    // draw a turtle-like shape
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size, size * 1.3, 0, 0, 2 * Math.PI);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  // Center
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, 2 * Math.PI);
+  ctx.fillStyle = '#4a5c4d';
+  ctx.fill();
+}
+
+// ─── DEMO 8: Fractal Tree ───
+function drawTree() {
+  const depth = parseInt(document.getElementById('depth-8').value);
+  const angle = parseInt(document.getElementById('tangle-8').value);
+  const ratio = parseInt(document.getElementById('ratio-8').value) / 100;
+  document.getElementById('depth-val').textContent = depth;
+  document.getElementById('tangle-val').textContent = angle + '°';
+  document.getElementById('ratio-val').textContent = ratio.toFixed(2);
+  const ctx = clearCanvas('canvas-8');
+  if (!ctx) return;
+  function branch(x, y, len, dir, d) {
+    if (d === 0 || len < 2) return;
+    const rad = (dir * Math.PI) / 180;
+    const x2 = x + len * Math.cos(rad);
+    const y2 = y - len * Math.sin(rad);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = len < 15 ? '#6fcf7a' : `hsl(25,60%,${30 + (9 - d) * 5}%)`;
+    ctx.lineWidth = Math.max(1, d * 0.7);
+    ctx.stroke();
+    branch(x2, y2, len * ratio, dir - angle, d - 1);
+    branch(x2, y2, len * ratio, dir + angle, d - 1);
+  }
+  branch(250, 290, 70, 90, depth);
+}
+
+// ─── DEMO 9: L-Systems ───
+function applyRules(axiom, rules, iters) {
+  let s = axiom;
+  for (let i = 0; i < iters; i++) s = s.split('').map(c => rules[c] || c).join('');
+  return s;
+}
+function drawLSystem() {
+  const preset = document.getElementById('preset-9').value;
+  const iters = parseInt(document.getElementById('iter-9').value);
+  document.getElementById('iter-val').textContent = iters;
+  const ctx = clearCanvas('canvas-9');
+  if (!ctx) return;
+  const presets = {
+    koch:       { axiom:'F--F--F', rules:{'F':'F+F--F+F'}, angle:60, len:3, start:[50,200], dir:0 },
+    sierpinski: { axiom:'F-G-G', rules:{'F':'F-G+F+G-F','G':'GG'}, angle:120, len:4, start:[80,260], dir:0 },
+    plant:      { axiom:'X', rules:{'F':'FF','X':'F+[[X]-X]-F[-FX]+X'}, angle:25, len:6, start:[250,295], dir:90 },
+    dragon:     { axiom:'FX', rules:{'X':'X+YF+','Y':'-FX-Y'}, angle:90, len:5, start:[200,180], dir:0 },
+  };
+  const p = presets[preset];
+  const instructions = applyRules(p.axiom, p.rules, iters);
+  let x = p.start[0], y = p.start[1], dir = p.dir;
+  const stack = [];
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.strokeStyle = '#6fcf7a';
+  ctx.lineWidth = 1;
+  for (const cmd of instructions) {
+    if (cmd === 'F' || cmd === 'G') {
+      const rad = (dir * Math.PI) / 180;
+      x += p.len * Math.cos(rad); y -= p.len * Math.sin(rad);
+      ctx.lineTo(x, y);
+    } else if (cmd === '+') { dir -= p.angle; }
+    else if (cmd === '-') { dir += p.angle; }
+    else if (cmd === '[') { stack.push([x, y, dir]); }
+    else if (cmd === ']') {
+      [x, y, dir] = stack.pop();
+      ctx.moveTo(x, y);
+    }
+  }
+  ctx.stroke();
+}
+
+// ─── DEMO 10: Fireworks ───
+function drawFireworks() {
+  const count = parseInt(document.getElementById('fw-count').value);
+  const rays = parseInt(document.getElementById('fw-rays').value);
+  document.getElementById('fw-val').textContent = count;
+  const ctx = clearCanvas('canvas-10');
+  if (!ctx) return;
+  ctx.fillStyle = '#0a0c0a';
+  ctx.fillRect(0, 0, 500, 280);
+  const colors = ['#e06c75','#e5c07b','#6fcf7a','#61afef','#c678dd','#d19a66','#fff','#4ab856'];
+  for (let f = 0; f < count; f++) {
+    const x = 60 + Math.random() * 380;
+    const y = 30 + Math.random() * 200;
+    const color = colors[f % colors.length];
+    const size = 40 + Math.random() * 50;
+    for (let r = 0; r < rays; r++) {
+      const a = (2 * Math.PI / rays) * r;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + size * Math.cos(a), y + size * Math.sin(a));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x + size * Math.cos(a), y + size * Math.sin(a), 2, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+}
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  completed.add(0);
+  updateProgress();
+  setTimeout(() => animateDemo0(false), 400);
+});
+</script>
+</body>
+</html>
